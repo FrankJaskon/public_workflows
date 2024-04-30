@@ -55,6 +55,10 @@ jobs:
           # Commit and push the changes
           git config --global user.name FrankJaskon
           git config --global user.email frankjaskon@gmail.com
+          
+          git status
+          git diff
+          
           git add .
           git commit -m "Updated ${{ inputs.changeLookUpPath }} for new changes"
           git push origin $BRANCH_NAME
