@@ -1,0 +1,63 @@
+name: Sync Repositories
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node version to run this workflow. Default: 18 as it is in action cache'
+        default: '18'
+        required: false
+        type: string
+      changeLookUpPath:
+        description: 'Specify the folder to look for changes and publish'
+        required: true
+        type: string
+
+jobs:
+  run:
+    name: Synchronization
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v42
+
+      - name: Check if specified path has changes
+        id: specified_path_changes
+        run: |
+          echo "path_changes=$(echo "$CHANGED_FILES" | grep '${{ inputs.changeLookUpPath }}/' | wc -l)" >> $GITHUB_ENV
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+
+      - name: Rename, Branch, Commit, and PR for specified path
+        if: env.path_changes != '0'
+        run: |
+          # Create a new branch
+          BRANCH_NAME="${{ inputs.changeLookUpPath }}-update-$(date +%Y%m%d%H%M%S)"
+          git checkout -b $BRANCH_NAME
+
+          # Perform renaming operations or other changes
+          # For example, renaming within the specified path
+          find ${{ inputs.changeLookUpPath }} -type f \( -name '*.js' -o -name '*.json' -o -name '*.md' \) -exec sed -i 's/oldName/newName/g' {} +
+
+          # Commit and push the changes
+          git add .
+          git commit -m "Updated ${{ inputs.changeLookUpPath }} for new changes"
+          git push origin $BRANCH_NAME
+
+          # Create a pull request using GitHub CLI
+          gh pr create --title "Update ${{ inputs.changeLookUpPath }}" --body "Automated PR to update ${{ inputs.changeLookUpPath }}" --base master --head $BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
