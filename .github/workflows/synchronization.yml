@@ -41,29 +41,22 @@ jobs:
         env:
           CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
 
-      - name: Rename, Branch, Commit, and PR for specified path
-        if: env.path_changes != '0'
+      - name: List changes
         run: |
-          # Create a new branch
-          BRANCH_NAME="${{ inputs.changeLookUpPath }}-update-$(date +%Y%m%d%H%M%S)"
-          git checkout -b $BRANCH_NAME
-
-          # Perform renaming operations or other changes
-          # For example, renaming within the specified path
-          find ${{ inputs.changeLookUpPath }} -type f \( -name '*.js' -o -name '*.json' -o -name '*.md' \) -exec sed -i 's/oldName/newName/g' {} +
-
-          # Commit and push the changes
-          git config --global user.name FrankJaskon
-          git config --global user.email frankjaskon@gmail.com
-          
           git status
-          git diff
+          git diff      
           
-          git add .
-          git commit -m "Updated ${{ inputs.changeLookUpPath }} for new changes"
-          git push origin $BRANCH_NAME
-
-          # Create a pull request using GitHub CLI
-          gh pr create --title "Update ${{ inputs.changeLookUpPath }}" --body "Automated PR to update ${{ inputs.changeLookUpPath }}" --base master --head $BRANCH_NAME
+      - name: Commit and push the changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config --global user.name FrankJaskon
+            git config --global user.email frankjaskon@gmail.com
+            git add .
+            git commit -m "Updated ${{ inputs.changeLookUpPath }} for new changes"
+            git push origin $BRANCH_NAME
+            gh pr create --title "Update ${{ inputs.changeLookUpPath }}" --body "Automated PR to update ${{ inputs.changeLookUpPath }}" --base master --head $BRANCH_NAME
+          else
+            echo "No changes to commit"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
