@@ -37,7 +37,6 @@ jobs:
         uses: tj-actions/changed-files@v42
 
       - name: Determine if changes are in the specified path
-        id: check_path
         run: |
           echo "path_changes=$(echo '${{ steps.changed_files.outputs.all_changed_files }}' | grep -c '${{ inputs.changeLookUpPath }}')" >> $GITHUB_ENV
 
@@ -52,28 +51,37 @@ jobs:
       - name: Sync files to remote repository if changes
         if: env.path_changes != '0'
         run: |
-          echo "Starting rsync..."
           rsync -av --progress ${{ inputs.changeLookUpPath }}/ repo2/ --exclude .git --exclude .github --exclude README.md --exclude package.json
-          echo "rsync completed."
 
-      - name: Apply changes and commit if changes
+      - name: Apply changes
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          set -x
           find . -type f \( -name '*.js' \) -exec sed -i 's/rees46/personaClick/g; s/Rees46/PersonaClick/g' {} +
 
+      - name: Create commit
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
           git config user.name 'FrankJaskon'
           git config user.email 'frankjaskon@gmail.com'
+          git add .
+          git commit -m "Update code base"
+
+      - name: Push commit
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
           BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)
           git checkout -b $BRANCH_NAME
-
-          git add .
-          git commit -m "update code base"
           git push --set-upstream origin $BRANCH_NAME
-          PR_TITLE="automated release"
+
+      - name: Create Pull Request
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          PR_TITLE="Automated release"
           PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
           gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
