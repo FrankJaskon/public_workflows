@@ -91,7 +91,11 @@ jobs:
           echo "PR Title: $PR_TITLE"
           echo "PR Body: $PR_BODY"
           echo "Branch Name: $BRANCH_NAME"
-          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head "FrankJaskon:$BRANCH_NAME"
+          
+          gh repo list FrankJaskon
+          gh auth status
+          
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
