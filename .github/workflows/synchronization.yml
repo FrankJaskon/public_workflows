@@ -79,6 +79,9 @@ jobs:
           git checkout -b ${{ env.BRANCH_NAME }}
           git push --set-upstream origin ${{ env.BRANCH_NAME }}
 
+      - run: pwd
+      - run: git branch
+
       - name: Create Pull Request
         if: env.path_changes != '0'
         working-directory: repo2
