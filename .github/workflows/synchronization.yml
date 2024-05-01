@@ -97,6 +97,6 @@ jobs:
           
           gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.appSecret }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
