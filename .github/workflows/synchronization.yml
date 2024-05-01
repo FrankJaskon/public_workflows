@@ -51,7 +51,7 @@ jobs:
       - name: Sync files to remote repository if changes
         if: env.path_changes != '0'
         run: |
-          rsync -av --progress ${{ inputs.changeLookUpPath }}/ repo2/ --exclude .git --exclude .github --exclude README.md --exclude package.json
+          rsync -av --progress ${{ inputs.changeLookUpPath }}/ repo2/ --exclude .git --exclude .github --exclude *.md --exclude *.json
 
       - name: Apply changes
         if: env.path_changes != '0'
