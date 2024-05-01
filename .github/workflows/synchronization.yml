@@ -12,12 +12,14 @@ on:
         description: 'Specify the folder to look for changes and publish'
         required: true
         type: string
+    secrets:
+      appSecret:
+        required: true
 
 jobs:
   run:
     name: Synchronization
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,33 +32,45 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
-      - name: Changed files
+      - name: Check for changed files
         id: changed_files
         uses: tj-actions/changed-files@v42
 
-      - name: Check if specified path has changes
-        id: specified_path_changes
+      - name: Determine if changes are in the specified path
+        id: check_path
         run: |
-          echo "path_changes=$(echo "$CHANGED_FILES" | grep '${{ inputs.changeLookUpPath }}/' | wc -l)" >> $GITHUB_ENV
-        env:
-          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+          echo "path_changes=$(echo '${{ steps.changed_files.outputs.all_changed_files }}' | grep -c '${{ inputs.changeLookUpPath }}')" >> $GITHUB_ENV
 
-      - name: List changes
+      - name: Check out remote repository if changes
+        if: env.path_changes != '0'
+        uses: actions/checkout@v4
+        with:
+          repository: FrankJaskon/repo-2
+          token: ${{ secrets.appSecret }}
+          path: repo2
+
+      - name: Sync files to remote repository if changes
+        if: env.path_changes != '0'
         run: |
-          git status
-          git diff      
-          
-      - name: Commit and push the changes
+          rsync -av --progress ${{ inputs.changeLookUpPath }}/ repo2/
+
+      - name: Apply changes and commit if changes
+        if: env.path_changes != '0'
+        working-directory: repo2
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            git config --global user.name FrankJaskon
-            git config --global user.email frankjaskon@gmail.com
-            git add .
-            git commit -m "Updated ${{ inputs.changeLookUpPath }} for new changes"
-            git push origin $BRANCH_NAME
-            gh pr create --title "Update ${{ inputs.changeLookUpPath }}" --body "Automated PR to update ${{ inputs.changeLookUpPath }}" --base master --head $BRANCH_NAME
+          find ${{ inputs.changeLookUpPath }} -type f \( -name '*.js' -o -name '*.json' \) -exec sed -i 's/rees46/personaClick/g; s/Rees46/PersonaClick/g' {} +
+          git config user.name 'FrankJaskon'
+          git config user.email 'frankjaskon@gmail.com'
+          BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)
+          git checkout -b $BRANCH_NAME
+          git add .
+          if git diff --staged | grep -q .; then
+            git commit -m "update code base"
+            git push --set-upstream origin $BRANCH_NAME
+            PR_TITLE="automated release"
+            PR_BODY="This is an automated pull request to update from branch ${{ env.BRANCH_NAME }}"
+            gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME
           else
-            echo "No changes to commit"
-          fi
+            echo "No changes to commit, skipping commit and PR creation."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
