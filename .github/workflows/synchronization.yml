@@ -52,9 +52,9 @@ jobs:
       - name: Sync files to remote repository if changes
         if: env.path_changes != '0'
         run: |
+          echo "Starting rsync..."
           rsync -av --progress ${{ inputs.changeLookUpPath }}/ repo2/
-        with:
-          token: ${{ secrets.appSecret }}
+          echo "rsync completed."
 
       - name: Apply changes and commit if changes
         if: env.path_changes != '0'
