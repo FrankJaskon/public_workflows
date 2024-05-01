@@ -57,7 +57,11 @@ jobs:
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          find . -type f \( -name '*.js' \) -exec sed -i 's/rees46/personaClick/g; s/Rees46/PersonaClick/g' {} +
+          find . -type f \( -name '*.js' \) -exec sed -i \
+            -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
+            -e 's/rees46/personaClick/g' \
+            -e 's/Rees46/PersonaClick/g' {} +
+
 
       - name: Create commit
         if: env.path_changes != '0'
