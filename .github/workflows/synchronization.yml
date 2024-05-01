@@ -62,21 +62,22 @@ jobs:
         run: |
           set -x
           find . -type f \( -name '*.js' -o -name '*.json' \) -exec sed -i 's/rees46/personaClick/g; s/Rees46/PersonaClick/g' {} +
-          
+
           git config user.name 'FrankJaskon'
           git config user.email 'frankjaskon@gmail.com'
           BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)
           git checkout -b $BRANCH_NAME
-          
+
           git add .
           if git diff --staged | grep -q .; then
             git commit -m "update code base"
-            git push --set-upstream origin $BRANCH_NAME
+            git push --set-upstream origin $BRANCH_NAME || echo "Push failed" && exit 1
             PR_TITLE="automated release"
             PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
-            gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME
+            gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME || echo "PR creation failed" && exit 1
           else
             echo "No changes to commit, skipping commit and PR creation."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
