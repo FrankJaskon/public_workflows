@@ -39,7 +39,7 @@ jobs:
       - name: Determine if changes are in the specified path
         id: check_path
         run: |
-          echo "path_changes=$(echo '${{ steps.changed_files.outputs.all_changed_files }}' | grep -c '${{ inputs.changeLookUpPath }}')" >> $GITHUB_ENV
+          echo "path_changes=$(echo '${{ steps.changed_files.outputs.all_changed_files }}' | grep -c '${{ inputs.changeLookUpPath }}')"
 
       - name: Check out remote repository if changes
         if: env.path_changes != '0'
@@ -53,7 +53,7 @@ jobs:
         if: env.path_changes != '0'
         run: |
           echo "Starting rsync..."
-          rsync -av --progress ${{ inputs.changeLookUpPath }}/ repo2/
+          rsync -av --progress ${{ inputs.changeLookUpPath }}/ repo2/ --exclude .git --exclude .github --exclude README.md --exclude package.json
           echo "rsync completed."
 
       - name: Apply changes and commit if changes
@@ -61,7 +61,7 @@ jobs:
         working-directory: repo2
         run: |
           set -x
-          find . -type f \( -name '*.js' -o -name '*.json' \) -exec sed -i 's/rees46/personaClick/g; s/Rees46/PersonaClick/g' {} +
+          find . -type f \( -name '*.js' \) -exec sed -i 's/rees46/personaClick/g; s/Rees46/PersonaClick/g' {} +
 
           git config user.name 'FrankJaskon'
           git config user.email 'frankjaskon@gmail.com'
