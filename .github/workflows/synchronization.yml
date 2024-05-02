@@ -56,7 +56,6 @@ jobs:
             --exclude '.git' \
             --exclude '.github' \
             --exclude '*.md' \
-            --exclude '*.json' \
 
       - name: Apply changes to package.json
         if: env.path_changes != '0'
