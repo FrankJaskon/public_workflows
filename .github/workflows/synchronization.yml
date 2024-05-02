@@ -79,8 +79,8 @@ jobs:
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          git config user.name 'FrankJaskon'
-          git config user.email 'frankjaskon@gmail.com'
+          git config --global user.name github-actions
+          git config --global user.email github-bot@personaClick.com
           git add .
           echo "Changes to be committed:"
           git diff --staged
