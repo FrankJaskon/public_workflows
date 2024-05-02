@@ -19,6 +19,9 @@ on:
 jobs:
   run:
     name: Synchronization
+    defaults:
+      run:
+        working-directory: repo2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -57,10 +60,16 @@ jobs:
             --exclude '.github' \
             --exclude '*.md' \
             --exclude '*.json' \
-            --exclude '.npmignore' \
-            --exclude 'LICENSE'
 
-      - name: Apply changes
+      - name: Apply changes to package.json
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          find . -type f -name 'package.json' -exec sed -i \
+            -e 's|rees46/react-native/|personaclick/rn/|g' \
+            -e 's|Rees46/react-native|PersonaClick/rn|g' {} +
+
+      - name: Apply changes to JavaScript files
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
@@ -68,7 +77,6 @@ jobs:
             -e 's|https://api.rees46.ru/|https://api.personaclick.com/|g' \
             -e 's/rees46/personaClick/g' \
             -e 's/Rees46/PersonaClick/g' {} +
-
 
       - name: Create commit
         if: env.path_changes != '0'
