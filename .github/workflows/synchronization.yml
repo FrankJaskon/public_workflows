@@ -19,9 +19,6 @@ on:
 jobs:
   run:
     name: Synchronization
-    defaults:
-      run:
-        working-directory: repo2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
