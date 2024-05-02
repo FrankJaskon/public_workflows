@@ -62,7 +62,7 @@ jobs:
         working-directory: repo2
         run: |
           find . -type f -name 'package.json' -exec sed -i \
-            -e 's|rees46/react-native/|personaclick/rn/|g' \
+            -e 's|rees46/react-native|personaclick/rn|g' \
             -e 's|Rees46/react-native|PersonaClick/rn|g' {} +
 
       - name: Apply changes to JavaScript files
