@@ -12,6 +12,10 @@ on:
         description: 'Specify the folder to look for changes and publish'
         required: true
         type: string
+      appId:
+        description: 'App ID for committing and pushing'
+        required: true
+        type: string
     secrets:
       appSecret:
         required: true
@@ -21,10 +25,17 @@ jobs:
     name: Synchronization
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ inputs.appId }}
+          private-key: ${{ secrets.appSecret }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: master
+          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
       - name: Setup Node
@@ -44,8 +55,8 @@ jobs:
         if: env.path_changes != '0'
         uses: actions/checkout@v4
         with:
-          repository: FrankJaskon/repo-2
-          token: ${{ secrets.appSecret }}
+          repository: PersonaClick/rn-sdk
+          token: ${{ steps.app-token.outputs.token }}
           path: repo2
 
       - name: Sync files to remote repository if changes
@@ -105,6 +116,6 @@ jobs:
           PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
           gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME
         env:
-          GITHUB_TOKEN: ${{ secrets.appSecret }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
