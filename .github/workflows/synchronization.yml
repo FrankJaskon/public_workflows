@@ -77,6 +77,8 @@ jobs:
           git config user.name 'FrankJaskon'
           git config user.email 'frankjaskon@gmail.com'
           git add .
+          echo "Changes to be committed:"
+          git diff --staged
           git commit -m "Update code base"
 
       - name: Set branch name
