@@ -45,6 +45,8 @@ jobs:
           PR_NUMBER=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number')
           LAST_PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
           echo "LAST_PR_AUTHOR=$LAST_PR_AUTHOR" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check out remote repository if changes
         if: env.path_changes != '0'
