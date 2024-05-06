@@ -86,6 +86,12 @@ jobs:
           git diff --staged
           git commit -m "feat: release"
 
+      - name: Apply changes to CHANGELOG.md
+        if: env.path_changes != '0'
+        working-directory: repo2
+        run: |
+          find . -type f -name 'CHANGELOG.md' -exec sed -i 's|\[\([^]]*\)\]\(\([^)]*\)\)|\1|g' {} +   
+
       - name: Set branch name
         if: env.path_changes != '0'
         run: echo "BRANCH_NAME=feat/new-release-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
