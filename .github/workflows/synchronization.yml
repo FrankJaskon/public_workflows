@@ -90,7 +90,7 @@ jobs:
         if: env.path_changes != '0'
         working-directory: repo2
         run: |
-          find . -type f -name 'CHANGELOG.md' -exec sed -i 's|\[\([^]]*\)\]\(([^)]*)\)|\1|g' {} +
+          find ${{ inputs.changeLookUpPath }}/ -type f -name 'CHANGELOG.md' -exec sed -i 's|\[\([^]]*\)\]\(([^)]*)\)|\1|g' {} +
 
       - name: Set branch name
         if: env.path_changes != '0'
