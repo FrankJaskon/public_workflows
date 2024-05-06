@@ -40,12 +40,11 @@ jobs:
         run: |
           echo "path_changes=$(echo '${{ steps.changed_files.outputs.all_changed_files }}' | grep -c '${{ inputs.changeLookUpPath }}')" >> $GITHUB_ENV
 
-      - name: Get last non-merge commit author
+      - name: Get last non-merge commit author login
         if: env.path_changes != '0'
         run: |
-          LAST_COMMIT_AUTHOR=$(git log -1 --no-merges --format='%aN <%aE>')
+          LAST_COMMIT_AUTHOR=$(git log -1 --no-merges --format='%aN')
           echo "LAST_COMMIT_AUTHOR=$LAST_COMMIT_AUTHOR" >> $GITHUB_ENV
-      
 
       - name: Check out remote repository if changes
         if: env.path_changes != '0'
