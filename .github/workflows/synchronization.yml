@@ -55,7 +55,7 @@ jobs:
             ${{ inputs.changeLookUpPath }}/ repo2/ \
             --exclude '.git' \
             --exclude '.github' \
-            --exclude '*.md' \
+            --exclude 'README.md' \
 
       - name: Apply changes to package.json
         if: env.path_changes != '0'
