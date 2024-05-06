@@ -117,9 +117,9 @@ jobs:
         run: |
           PR_TITLE="Automated release"
           PR_BODY="This is an automated pull request to update from branch $BRANCH_NAME"
-          echo "$$LAST_PR_AUTHOR and ${{ github.event.pull_request.user.login }}"
+          echo "$LAST_PR_AUTHOR and ${{ github.event.pull_request.user.login }}"
           gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base master --head $BRANCH_NAME --assignee $LAST_PR_AUTHOR
         env:
           GITHUB_TOKEN: ${{ secrets.appSecret }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
-          LAST_COMMIT_AUTHOR: ${{ env.LAST_PR_AUTHOR }}
+          LAST_PR_AUTHOR: ${{ env.LAST_PR_AUTHOR }}
